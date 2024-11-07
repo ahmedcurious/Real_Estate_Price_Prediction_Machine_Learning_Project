@@ -1,5 +1,5 @@
 import './App.css'
-import Form from './components/Form'
+import FormProperty from './components/FormProperty'
 import Header from './components/Header'
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="bg-teal-50">
       <Header />
-      <Form />
+      <FormProperty />
     </div>
   )
 }
