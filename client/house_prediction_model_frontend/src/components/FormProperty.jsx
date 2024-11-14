@@ -8,10 +8,20 @@ import {
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import { object, number, string } from "yup";
+import { useQuery } from "@tanstack/react-query";
 import Button from "./Button";
 
-
 const FormProperty = () => {
+  const { isLoading, error, data } = useQuery({
+    queryKey: ["locations"],
+    queryFn: async () => {
+      const response = await fetch("http://127.0.0.1:5000/get_location_names");
+      return response.json();
+    },
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
   return (
     <div className="flex flex-col justify-center items-center gap-16 py-16">
       <div className="text-teal-300 font-playfair_display font-bold text-5xl text-center w-fit">
@@ -96,9 +106,11 @@ const FormProperty = () => {
                   value={values.location}
                   onChange={handleChange}
                 >
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
+                  {data?.locations?.map((location, index) => (
+                    <MenuItem key={index} value={location}>
+                      {location}
+                    </MenuItem>
+                  ))}
                 </Field>
                 {touched.location && errors.location && (
                   <FormHelperText>{errors.location}</FormHelperText>
