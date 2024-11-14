@@ -8,7 +8,8 @@ import {
 } from "@mui/material";
 import { Field, Form, Formik } from "formik";
 import { object, number, string } from "yup";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import Button from "./Button";
 
 const FormProperty = () => {
@@ -20,8 +21,35 @@ const FormProperty = () => {
     },
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(null);
+  const [submitData, setSubmitData] = useState(null);
+
+  // Define the mutation with the correct useMutation API
+  const mutation = useMutation({
+    mutationFn: postData,
+    onSuccess: (data) => {
+      setSubmitData(data);
+      setIsSubmitting(false);
+    },
+    onError: (error) => {
+      setSubmitError(error);
+      setIsSubmitting(false);
+    },
+  });
+
+  const handleSubmit = async (values) => {
+    setIsSubmitting(true);
+    try {
+      const response = await mutation.mutateAsync(values); // Use mutateAsync for async operations
+    } catch (error) {
+      setSubmitError(error);
+    }
+  };
+
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
+
   return (
     <div className="flex flex-col justify-center items-center gap-16 py-16">
       <div className="text-teal-300 font-playfair_display font-bold text-5xl text-center w-fit">
@@ -31,6 +59,7 @@ const FormProperty = () => {
         initialValues={{ area: "", bhk: "", bath: "", location: "" }}
         onSubmit={(values, formikHelpers) => {
           console.log(values);
+          handleSubmit(values); // Make sure to call handleSubmit with the form values
           formikHelpers.resetForm();
         }}
         validationSchema={object({
@@ -55,74 +84,96 @@ const FormProperty = () => {
         })}
       >
         {({ values, handleChange, errors, touched }) => (
-          <Form className="flex flex-col items-center gap-12">
-            <div className="flex flex-col gap-9">
-              <Field
-                name="area"
-                type="number"
-                as={TextField}
-                variant="outlined"
-                color="primary"
-                label="Area (Square Feet)"
-                fullWidth
-                error={Boolean(errors.area) && Boolean(touched.area)}
-                helperText={Boolean(touched.area) && errors.area}
-              />
-              <div className="flex flex-row gap-12">
+          <div>
+            <Form className="flex flex-col items-center gap-12">
+              <div className="flex flex-col gap-9">
                 <Field
-                  name="bhk"
+                  name="area"
                   type="number"
                   as={TextField}
                   variant="outlined"
                   color="primary"
-                  label="BHK"
+                  label="Area (Square Feet)"
                   fullWidth
-                  error={Boolean(errors.bhk) && Boolean(touched.bhk)}
-                  helperText={Boolean(touched.bhk) && errors.bhk}
+                  error={Boolean(errors.area) && Boolean(touched.area)}
+                  helperText={Boolean(touched.area) && errors.area}
                 />
-                <Field
-                  name="bath"
-                  type="number"
-                  as={TextField}
-                  variant="outlined"
-                  color="primary"
-                  label="Bath"
+                <div className="flex flex-row gap-12">
+                  <Field
+                    name="bhk"
+                    type="number"
+                    as={TextField}
+                    variant="outlined"
+                    color="primary"
+                    label="BHK"
+                    fullWidth
+                    error={Boolean(errors.bhk) && Boolean(touched.bhk)}
+                    helperText={Boolean(touched.bhk) && errors.bhk}
+                  />
+                  <Field
+                    name="bath"
+                    type="number"
+                    as={TextField}
+                    variant="outlined"
+                    color="primary"
+                    label="Bath"
+                    fullWidth
+                    error={Boolean(errors.bath) && Boolean(touched.bath)}
+                    helperText={Boolean(touched.bath) && errors.bath}
+                  />
+                </div>
+                <FormControl
                   fullWidth
-                  error={Boolean(errors.bath) && Boolean(touched.bath)}
-                  helperText={Boolean(touched.bath) && errors.bath}
-                />
-              </div>
-              <FormControl
-                fullWidth
-                error={touched.location && Boolean(errors.location)}
-              >
-                <InputLabel id="location-select-label">Location</InputLabel>
-                <Field
-                  name="location"
-                  as={Select}
-                  labelId="location-select-label"
-                  id="location-select"
-                  label="Location"
-                  value={values.location}
-                  onChange={handleChange}
+                  error={touched.location && Boolean(errors.location)}
                 >
-                  {data?.locations?.map((location, index) => (
-                    <MenuItem key={index} value={location}>
-                      {location}
-                    </MenuItem>
-                  ))}
-                </Field>
-                {touched.location && errors.location && (
-                  <FormHelperText>{errors.location}</FormHelperText>
-                )}
-              </FormControl>
-            </div>
-            <Button text="Predict Price!" type="Submit" />
-          </Form>
+                  <InputLabel id="location-select-label">Location</InputLabel>
+                  <Field
+                    name="location"
+                    as={Select}
+                    labelId="location-select-label"
+                    id="location-select"
+                    label="Location"
+                    value={values.location}
+                    onChange={handleChange}
+                  >
+                    {data?.locations?.map((location, index) => (
+                      <MenuItem key={index} value={location}>
+                        {location}
+                      </MenuItem>
+                    ))}
+                  </Field>
+                  <FormHelperText>
+                    {touched.location && errors.location
+                      ? errors.location
+                      : null}
+                    {isLoading ? "Loading..." : null}
+                    {error ? `Error: ${error.message}` : null}
+                  </FormHelperText>
+                </FormControl>
+              </div>
+              <Button text="Predict Price!" type="Submit" />
+            </Form>
+
+            {isSubmitting && <p>Submitting...</p>}
+            {submitError && <p>Error: {submitError.message}</p>}
+            {submitData && <p>Success: {JSON.stringify(submitData)}</p>}
+          </div>
         )}
       </Formik>
     </div>
   );
 };
+
+async function postData(values) {
+  const response = await fetch("http://127.0.0.1:5000/predict_price", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(values),
+  });
+
+  return response.json();
+}
 
 export default FormProperty;
