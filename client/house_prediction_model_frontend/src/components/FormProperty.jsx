@@ -10,6 +10,7 @@ import { Field, Form, Formik } from "formik";
 import { object, number, string } from "yup";
 import Button from "./Button";
 
+
 const FormProperty = () => {
   return (
     <div className="flex flex-col justify-center items-center gap-16 py-16">
