@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import util
 
 app = Flask(__name__)
 
+CORS(app)
 
 @app.route("/get_location_names")
 def get_location_names():
@@ -17,10 +19,12 @@ def get_location_names():
 
 @app.route("/predict_price", methods=["POST"])
 def predict_price():
-    total_sqft = float(request.form["total_sqft"])
-    location = request.form["location"]
-    bhk = int(request.form["bhk"])
-    bath = int(request.form["bath"])
+    data = request.get_json()
+    print("Received data:", data)
+    total_sqft = float(data["total_sqft"])
+    location = data["location"]
+    bhk = int(data["bhk"])
+    bath = int(data["bath"])
 
     response = jsonify(
         {"estimated_price": util.predict_price(location, total_sqft, bhk, bath)}

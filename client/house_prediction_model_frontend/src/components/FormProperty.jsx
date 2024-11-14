@@ -41,14 +41,15 @@ const FormProperty = () => {
   const handleSubmit = async (values) => {
     setIsSubmitting(true);
     try {
-      const response = await mutation.mutateAsync(values); // Use mutateAsync for async operations
+      console.log("Submitting values:", values); // Log values for debugging
+      const response = await mutation.mutateAsync(values); // Send the form values to backend
+      setSubmitData(response); // Handle response
+      setIsSubmitting(false); // End submitting state
     } catch (error) {
-      setSubmitError(error);
+      setSubmitError(error); // Capture any errors
+      setIsSubmitting(false); // End submitting state
     }
   };
-
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="flex flex-col justify-center items-center gap-16 py-16">
@@ -56,14 +57,13 @@ const FormProperty = () => {
         Please enter the Property details
       </div>
       <Formik
-        initialValues={{ area: "", bhk: "", bath: "", location: "" }}
+        initialValues={{ total_sqft: "", bhk: "", bath: "", location: "" }}
         onSubmit={(values, formikHelpers) => {
-          console.log(values);
           handleSubmit(values); // Make sure to call handleSubmit with the form values
           formikHelpers.resetForm();
         }}
         validationSchema={object({
-          area: number()
+          total_sqft: number()
             .required("Please enter the required Area of the Property")
             .integer("Invalid Integer")
             .min(0, "Area must be a positive number")
@@ -88,15 +88,17 @@ const FormProperty = () => {
             <Form className="flex flex-col items-center gap-12">
               <div className="flex flex-col gap-9">
                 <Field
-                  name="area"
+                  name="total_sqft"
                   type="number"
                   as={TextField}
                   variant="outlined"
                   color="primary"
                   label="Area (Square Feet)"
                   fullWidth
-                  error={Boolean(errors.area) && Boolean(touched.area)}
-                  helperText={Boolean(touched.area) && errors.area}
+                  error={
+                    Boolean(errors.total_sqft) && Boolean(touched.total_sqft)
+                  }
+                  helperText={Boolean(touched.total_sqft) && errors.total_sqft}
                 />
                 <div className="flex flex-row gap-12">
                   <Field
@@ -137,7 +139,7 @@ const FormProperty = () => {
                     onChange={handleChange}
                   >
                     {data?.locations?.map((location, index) => (
-                      <MenuItem key={index} value={location}>
+                      <MenuItem key={index} value={`location_${location}`}>
                         {location}
                       </MenuItem>
                     ))}
