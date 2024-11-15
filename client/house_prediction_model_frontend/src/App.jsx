@@ -8,7 +8,7 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-teal-50">
+      <div className="bg-teal-50 flex flex-col gap-12">
         <Header />
         <FormProperty />
       </div>

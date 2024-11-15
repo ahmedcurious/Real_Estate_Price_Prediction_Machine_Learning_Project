@@ -52,11 +52,12 @@ const FormProperty = () => {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center gap-16 py-16">
+    <div className="flex flex-col justify-center items-center gap-16 py-16:">
       <div className="text-teal-300 font-playfair_display font-bold text-5xl text-center w-fit">
         Please enter the Property details
       </div>
       <Formik
+        className="w-96"
         initialValues={{ total_sqft: "", bhk: "", bath: "", location: "" }}
         onSubmit={(values, formikHelpers) => {
           handleSubmit(values); // Make sure to call handleSubmit with the form values
@@ -66,18 +67,18 @@ const FormProperty = () => {
           total_sqft: number()
             .required("Please enter the required Area of the Property")
             .integer("Invalid Integer")
-            .min(0, "Area must be a positive number")
+            .min(200, "Minimum Area must be 200 sqft and a positive number")
             .max(9000, "Maximum Area available is 9000 sqft"),
           bhk: number()
             .required("Please enter the number of rooms")
             .integer("Invalid Integer")
-            .min(0, "BHK must be a positive number")
-            .max(14, "Maximum BHK available is 14"),
+            .min(1, "Minimum BHK must be 1 and a positive number")
+            .max(12, "Maximum BHK available is 12"),
           bath: number()
             .required("Please enter the number of baths")
             .integer("Invalid Integer")
-            .min(0, "Bath must be a positive number")
-            .max(14, "Maximum Baths available is 14"),
+            .min(1, "Minimum Bath must be 1 a positive number")
+            .max(12, "Maximum Baths available is 12"),
           location: string().required(
             "Please select the location for the property"
           ),
@@ -85,7 +86,7 @@ const FormProperty = () => {
       >
         {({ values, handleChange, errors, touched }) => (
           <div>
-            <Form className="flex flex-col items-center gap-12">
+            <Form className="flex flex-col items-center gap-12 w-[448px]">
               <div className="flex flex-col gap-9">
                 <Field
                   name="total_sqft"
