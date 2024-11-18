@@ -11,6 +11,7 @@ import { object, number, string } from "yup";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import Button from "./Button";
+import PredictedPriceModal from "./PredictedPriceModal";
 
 // Forward ref correctly to the form element
 const FormProperty = React.forwardRef((props, ref) => {
@@ -25,6 +26,9 @@ const FormProperty = React.forwardRef((props, ref) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitData, setSubmitData] = useState(null);
+
+  // Declare openModal state to control modal visibility
+  const [openModal, setOpenModal] = useState(false);
 
   // Mutation for handling data submission
   const mutation = useMutation({
@@ -46,11 +50,17 @@ const FormProperty = React.forwardRef((props, ref) => {
       console.log("Submitting values:", values); // Log values for debugging
       const response = await mutation.mutateAsync(values); // Send the form values to backend
       setSubmitData(response); // Handle response
+      setOpenModal(true); // Open the modal when prediction is successful
       setIsSubmitting(false); // End submitting state
     } catch (error) {
       setSubmitError(error); // Capture any errors
       setIsSubmitting(false); // End submitting state
     }
+  };
+
+  // Close the modal
+  const handleCloseModal = () => {
+    setOpenModal(false);
   };
 
   return (
@@ -162,7 +172,13 @@ const FormProperty = React.forwardRef((props, ref) => {
 
       {isSubmitting && <p>Submitting...</p>}
       {submitError && <p>Error: {submitError.message}</p>}
-      {submitData && <p>Success: {JSON.stringify(submitData)}</p>}
+      {/* {submitData && <p>Success: {JSON.stringify(submitData.estimated_price)}</p>} */}
+
+      <PredictedPriceModal
+        open={openModal}
+        price={submitData ? submitData.estimated_price : null}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 });
