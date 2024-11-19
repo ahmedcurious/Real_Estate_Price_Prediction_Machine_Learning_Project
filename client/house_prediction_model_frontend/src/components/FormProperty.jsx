@@ -12,6 +12,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
 import Button from "./Button";
 import PredictedPriceModal from "./PredictedPriceModal";
+import Confetti from "react-confetti";
 
 // Forward ref correctly to the form element
 const FormProperty = React.forwardRef((props, ref) => {
@@ -29,6 +30,9 @@ const FormProperty = React.forwardRef((props, ref) => {
 
   // Declare openModal state to control modal visibility
   const [openModal, setOpenModal] = useState(false);
+
+  // Track confetti animation
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Mutation for handling data submission
   const mutation = useMutation({
@@ -51,6 +55,7 @@ const FormProperty = React.forwardRef((props, ref) => {
       const response = await mutation.mutateAsync(values); // Send the form values to backend
       setSubmitData(response); // Handle response
       setOpenModal(true); // Open the modal when prediction is successful
+      setShowConfetti(true); // Trigger confetti animation
       setIsSubmitting(false); // End submitting state
     } catch (error) {
       setSubmitError(error); // Capture any errors
@@ -61,6 +66,7 @@ const FormProperty = React.forwardRef((props, ref) => {
   // Close the modal
   const handleCloseModal = () => {
     setOpenModal(false);
+    setShowConfetti(false); // Stop the confetti animation when the modal closes
   };
 
   return (
@@ -179,6 +185,19 @@ const FormProperty = React.forwardRef((props, ref) => {
         price={submitData ? submitData.estimated_price : null}
         onClose={handleCloseModal}
       />
+
+      {/* Render the confetti animation behind the modal */}
+      {showConfetti && (
+        <Confetti
+          width={window.innerWidth}
+          height={window.innerHeight}
+          numberOfPieces={500}
+          recycle={true}
+          gravity={0.3}
+          colors={['#74ebd4', '#f1c40f', '#ff6347']}
+          className="absolute top-0 left-0 z-[-1]"
+        />
+      )}
     </div>
   );
 });

@@ -20,7 +20,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-teal-50 flex flex-col gap-12">
+      <div className="bg-teal-50 flex flex-col gap-12 overflow-y-scroll no-scrollbarc">
         <Header onScrollToForm={scrollToFormProperty} />
         <FormProperty ref={formRef} />
       </div>

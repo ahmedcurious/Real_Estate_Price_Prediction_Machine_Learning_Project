@@ -8,7 +8,7 @@ import PropTypes from "prop-types";
 import Button from "./Button";
 
 const PredictedPriceModal = ({ open, price, onClose }) => {
-  const priceInLakhs = price * 100000;
+  const priceInLakhs = price * 100000 * 1.8;
   return (
     <Dialog
       open={open}
